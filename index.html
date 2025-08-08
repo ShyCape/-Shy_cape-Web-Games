@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My GitHub Projects</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --link-color: #007bff;
+            --link-hover-color: #0056b3;
+            --container-bg-color: #2a2a2a;
+            --border-radius: 8px;
+            --font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+            background-color: var(--container-bg-color);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .description {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            color: #b0b0b0;
+        }
+
+        .link-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .link-item {
+            margin-bottom: 1rem;
+        }
+
+        .link-button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            background-color: var(--link-color);
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .link-button:hover {
+            background-color: var(--link-hover-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ShyCape Games</h1>
+        <p class="description">here is game.</p>
+        <ul class="link-list">
+            <li class="link-item">
+                <a href="IdleCatGame%20copy.html" class="link-button">Idle Cat Game</a>
+            </li>
+            <li class="link-item">
+                <a href="PiScientificCalculator.html" class="link-button">Pi Scientific Calculator</a>
+            </li>
+            <li class="link-item">
+                <a href="game.html" class="link-button"> ad clicker Game</a>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
