@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purrfect Clicker V 1.11</title>
+    <style>
+        :root {
+            /* Cute Color Palette */
+            --bg-color: #fce4ec; /* Light Pink */
+            --container-bg: #ffffff;
+            --header-color: #880e4f; /* Darker Pink */
+            --text-color: #4a148c; /* Purple */
+            --secondary-text-color: #7b1fa2; /* Lighter Purple */
+            --button-primary: #ec407a; /* Bright Pink */
+            --button-primary-hover: #d81b60; /* Darker Pink */
+            --button-secondary: #ab47bc; /* Medium Purple */
+            --button-secondary-hover: #8e24aa; /* Darker Purple */
+            --button-disabled: #e0e0e0;
+            --border-color: #f48fb1; /* Medium Pink */
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.2);
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Friendly font */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        h1 {
+            color: var(--header-color);
+            margin-bottom: 25px;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px var(--shadow-light);
+        }
+        .game-container {
+            background-color: var(--container-bg);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px var(--shadow-medium);
+            width: 95%;
+            max-width: 900px;
+            box-sizing: border-box;
+            text-align: center;
+            border: 3px solid var(--border-color);
+        }
+        .stats {
+            margin-bottom: 30px;
+            font-size: 1.3em;
+            color: var(--secondary-text-color);
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .stats div {
+            background-color: #fce4ec; /* Lighter pink for stats boxes */
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            min-width: 160px;
+            box-shadow: 1px 1px 5px var(--shadow-light);
+            font-weight: bold;
+        }
+
+        /* --- Main Cat Area (Clickable) --- */
+        #cat-area {
+            /* Adjusted for 32x32px image to display at 6x scale */
+            width: 192px; /* 32 * 6 = 192px */
+            height: 192px; /* 32 * 6 = 192px */
+            margin: 30px auto;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 5px 15px var(--shadow-medium);
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+            border: 3px solid var(--secondary-text-color);
+            border-radius: 10px; /* Slightly rounded frame for the pixel art */
+            overflow: hidden; /* Ensure image doesn't spill out */
+            display: flex; /* For centering click feedback */
+            justify-content: center;
+            align-items: center;
+            background-color: #d7ccc8; /* A light grey/brown background if image doesn't fill */
+        }
+        #cat-area:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--shadow-medium);
+        }
+        #cat-area:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px var(--shadow-medium);
+        }
+
+        /* Styling for the actual cat image - ENSURE SHARPNESS HERE */
+        #main-cat-image {
+            width: 100%; /* Make the image fill its container */
+            height: 100%;
+            object-fit: contain; /* Ensures the whole image fits without cropping, maintaining aspect ratio */
+            display: block; /* Remove extra space below image */
+            image-rendering: pixelated; /* Standard for sharp pixels */
+            image-rendering: -moz-crisp-edges; /* Firefox specific */
+            image-rendering: -webkit-optimize-contrast; /* Webkit (Chrome/Safari/Edge) specific */
+        }
+
+        /* Click Feedback Numbers */
+        .click-feedback {
+            position: absolute;
+            font-size: 1.8em;
+            color: var(--header-color);
+            pointer-events: none; /* Allows clicks to pass through */
+            opacity: 0;
+            animation: fadeUp 1s forwards;
+            text-shadow: 1px 1px 3px var(--shadow-light);
+            z-index: 10; /* Ensure numbers are above the image */
+        }
+        @keyframes fadeUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+
+        /* --- Visual Display Containers for Bought Items --- */
+        .visual-display-area {
+            display: flex;
+            flex-wrap: wrap; /* Allow items to wrap to the next line */
+            justify-content: center; /* Center items in the container */
+            align-items: flex-start; /* Align items to the top if they wrap */
+            margin-top: 20px;
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px dashed var(--border-color);
+            border-radius: 10px;
+            background-color: #fff9fb; /* Very light pink background */
+            min-height: 50px; /* Ensure some height even if empty */
+            gap: 10px; /* Space between the items */
+        }
+
+        /* Styling for the dynamically added items - ENSURE SHARPNESS HERE */
+        .visual-item {
+            /* Adjusted for 32x32px image to display at 2x scale */
+            width: 64px; /* 32 * 2 = 64px */
+            height: 64px; /* 32 * 2 = 64px */
+            object-fit: contain;
+            border-radius: 5px; /* Slight round for the visual items */
+            box-shadow: 0 2px 5px var(--shadow-light);
+            transition: transform 0.1s ease-out;
+            image-rendering: pixelated; /* Standard for sharp pixels */
+            image-rendering: -moz-crisp-edges; /* Firefox specific */
+            image-rendering: -webkit-optimize-contrast; /* Webkit (Chrome/Safari/Edge) specific */
+        }
+        .visual-item:hover {
+            transform: scale(1.1); /* Slight pop on hover */
+        }
+
+        /* --- Upgrades Section --- */
+        .upgrades {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px dashed var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .upgrades button {
+            background-color: var(--button-primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 5px var(--button-primary-hover);
+            min-width: 250px; /* Ensure buttons are wide enough */
+        }
+        .upgrades button.secondary-btn { /* For other upgrades like autoclickers/cats */
+            background-color: var(--button-secondary);
+            box-shadow: 0 5px var(--button-secondary-hover);
+        }
+        .upgrades button:hover {
+            background-color: var(--button-primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 7px var(--button-primary-hover);
+        }
+        .upgrades button.secondary-btn:hover {
+            background-color: var(--button-secondary-hover);
+        }
+        .upgrades button:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px var(--button-primary-hover);
+        }
+        .upgrades button.secondary-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px var(--button-secondary-hover);
+        }
+        .upgrades button:disabled {
+            background-color: var(--button-disabled);
+            box-shadow: 0 3px #bbbbbb;
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        /* Specific Prestige Button Style */
+        .upgrades button.prestige-btn {
+            background-color: #d32f2f; /* Darker Red for Prestige */
+            box-shadow: 0 5px #b71c1c;
+        }
+        .upgrades button.prestige-btn:hover {
+            background-color: #b71c1c;
+        }
+        .upgrades button.prestige-btn:active {
+            box-shadow: 0 2px #b71c1c;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Purrfect Clicker</h1>
+        <div class="stats">
+            <div>Catnip: <span id="catnip">0</span></div>
+            <div>Total Clicks: <span id="total-clicks">0</span></div>
+            <div>Click Power: <span id="click-power">1</span> Catnip/click</div>
+            <div>Auto-Clickers: <span id="auto-clickers">0</span></div>
+            <div>Total Cats: <span id="total-cats">0</span></div>
+            <div>Catnip/sec: <span id="catnip-per-second">0</span></div>
+            <div>Purr-stige Level: <span id="prestige-level">0</span></div>
+        </div>
+
+        <div id="cat-area">
+            <img src="Grey Cat.png" alt="Cute pixel art cat" id="main-cat-image">
+            </div>
+
+        <h3>Your Toy Mice:</h3>
+        <div id="mouse-display-area" class="visual-display-area">
+            </div>
+
+        <h3>Your Other Cats:</h3>
+        <div id="other-cat-display-area" class="visual-display-area">
+            </div>
+
+        <div class="upgrades">
+            <h2>Upgrades</h2>
+            <button id="upgrade-click-btn">Pawsome Power (Cost: <span id="cost-click">10</span> Catnip)</button>
+            <button id="buy-autoclicker-btn" class="secondary-btn">Toy Mouse (Cost: <span id="cost-autoclicker">50</span> Catnip)</button>
+            <button id="buy-cat-btn" class="secondary-btn">Buy New Cat (Cost: <span id="cost-cat">100</span> Catnip)</button>
+            <button id="prestige-btn" class="prestige-btn">Purr-stige! (Req: <span id="prestige-req">10,000</span> Catnip)</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Game Variables ---
+        let catnip = 0;
+        let totalClicks = 0;
+        let clickPower = 1;
+        let autoClickers = 0;
+        let totalCats = 0; 
+        let catnipPerSecond = 0;
+
+        let autoClickInterval;
+        let passiveCatnipInterval;
+
+        let prestigeLevel = 0;
+
+        // Upgrade Costs (dynamic)
+        let upgradeClickCost = 10;
+        let autoClickerCost = 50;
+        let buyCatCost = 100;
+        const PRESTIGE_REQUIREMENT = 10000;
+
+        // --- NEW: Array to store the specific image for each bought cat ---
+        let boughtCatImages = []; 
+
+        // --- DOM Elements ---
+        const catnipDisplay = document.getElementById('catnip');
+        const totalClicksDisplay = document.getElementById('total-clicks');
+        const clickPowerDisplay = document.getElementById('click-power');
+        const autoClickersDisplay = document.getElementById('auto-clickers');
+        const totalCatsDisplay = document.getElementById('total-cats');
+        const catnipPerSecondDisplay = document.getElementById('catnip-per-second');
+        const prestigeLevelDisplay = document.getElementById('prestige-level');
+        const catArea = document.getElementById('cat-area');
+
+        const upgradeClickBtn = document.getElementById('upgrade-click-btn');
+        const buyAutoclickerBtn = document.getElementById('buy-autoclicker-btn');
+        const buyCatBtn = document.getElementById('buy-cat-btn');
+        const prestigeBtn = document.getElementById('prestige-btn');
+
+        const costClickSpan = document.getElementById('cost-click');
+        const costAutoclickerSpan = document.getElementById('cost-autoclicker');
+        const costCatSpan = document.getElementById('cost-cat');
+        const prestigeReqSpan = document.getElementById('prestige-req');
+
+        // Visual display areas
+        const mouseDisplayArea = document.getElementById('mouse-display-area');
+        const otherCatDisplayArea = document.getElementById('other-cat-display-area');
+
+        // --- Array of cat image filenames for random selection ---
+        const CAT_IMAGE_FILENAMES = [
+            "Grey Cat.png",
+            "Sheep Cat.png",
+            "Brick Cat.png",
+            "Pipe Cat.png"
+        ];
+
+
+        // --- Functions ---
+
+        function updateDisplay() {
+            catnipDisplay.textContent = catnip.toFixed(0);
+            totalClicksDisplay.textContent = totalClicks;
+            clickPowerDisplay.textContent = clickPower;
+            autoClickersDisplay.textContent = autoClickers;
+            totalCatsDisplay.textContent = totalCats;
+            catnipPerSecondDisplay.textContent = catnipPerSecond.toFixed(1);
+            prestigeLevelDisplay.textContent = prestigeLevel;
+
+            // Update button costs and enable/disable states
+            costClickSpan.textContent = upgradeClickCost;
+            costAutoclickerSpan.textContent = autoClickerCost;
+            costCatSpan.textContent = buyCatCost;
+            prestigeReqSpan.textContent = PRESTIGE_REQUIREMENT;
+
+            upgradeClickBtn.disabled = catnip < upgradeClickCost;
+            buyAutoclickerBtn.disabled = catnip < autoClickerCost;
+            buyCatBtn.disabled = catnip < buyCatCost;
+            prestigeBtn.disabled = catnip < PRESTIGE_REQUIREMENT;
+        }
+
+        // Handles a click on the main cat
+        function clickCat() {
+            catnip += clickPower;
+            totalClicks++;
+
+            // Show click feedback
+            const feedback = document.createElement('div');
+            feedback.classList.add('click-feedback');
+            feedback.textContent = `+${clickPower}`;
+            
+            // Random position near the click
+            const offsetX = (Math.random() - 0.5) * 50; 
+            const offsetY = (Math.random() - 0.5) * 50;
+            feedback.style.left = `calc(50% + ${offsetX}px)`;
+            feedback.style.top = `calc(50% + ${offsetY}px)`;
+            
+            catArea.appendChild(feedback);
+            
+            // Remove the feedback element after animation
+            feedback.addEventListener('animationend', () => {
+                feedback.remove();
+            });
+
+            updateDisplay();
+        }
+
+        // Auto-clicker logic (Toy Mouse)
+        function performAutoClick() {
+            if (autoClickers === 0) return;
+            // Each autoclicker performs a "click" action
+            for (let i = 0; i < autoClickers; i++) {
+                catnip += clickPower; 
+                totalClicks++; 
+
+                const feedback = document.createElement('div');
+                feedback.classList.add('click-feedback');
+                feedback.textContent = `+${clickPower}`;
+                const offsetX = (Math.random() - 0.5) * 50;
+                const offsetY = (Math.random() - 0.5) * 50;
+                feedback.style.left = `calc(50% + ${offsetX}px)`;
+                feedback.style.top = `calc(50% + ${offsetY}px)`;
+                catArea.appendChild(feedback);
+                feedback.addEventListener('animationend', () => {
+                    feedback.remove();
+                });
+            }
+            updateDisplay();
+        }
+
+        // Passive Catnip Production (from bought Cats)
+        function generatePassiveCatnip() {
+            if (totalCats === 0) return;
+            catnip += catnipPerSecond;
+            updateDisplay();
+        }
+
+        // Recalculate Catnip per second based on totalCats
+        function recalculateCatnipPerSecond() {
+            catnipPerSecond = totalCats * (0.1 * (1 + prestigeLevel * 0.1)); 
+        }
+
+        // Function to render visual mice and cats
+        function renderVisualItems() {
+            mouseDisplayArea.innerHTML = ''; // Clear existing mice
+            for (let i = 0; i < autoClickers; i++) {
+                const mouseImg = document.createElement('img');
+                mouseImg.src = 'Mouse.png'; 
+                mouseImg.alt = 'Toy Mouse';
+                mouseImg.classList.add('visual-item');
+                mouseDisplayArea.appendChild(mouseImg);
+            }
+
+            otherCatDisplayArea.innerHTML = ''; // Clear existing cats
+            // --- MODIFIED: Loop through boughtCatImages to use stored filenames ---
+            for (let i = 0; i < boughtCatImages.length; i++) {
+                const catImg = document.createElement('img');
+                catImg.src = boughtCatImages[i]; // Use the stored image for this cat
+                catImg.alt = 'Another Cat'; 
+                catImg.classList.add('visual-item');
+                otherCatDisplayArea.appendChild(catImg);
+            }
+        }
+
+
+        // --- Upgrade Functions ---
+
+        function upgradeClickPower() {
+            if (catnip >= upgradeClickCost) {
+                catnip -= upgradeClickCost;
+                clickPower++;
+                upgradeClickCost = Math.floor(upgradeClickCost * 1.5); 
+                updateDisplay();
+            }
+        }
+
+        function buyAutoClicker() {
+            if (catnip >= autoClickerCost) {
+                catnip -= autoClickerCost;
+                autoClickers++;
+                autoClickerCost = Math.floor(autoClickerCost * 1.75); 
+                updateDisplay();
+                renderVisualItems(); 
+
+                if (autoClickers === 1) { 
+                    autoClickInterval = setInterval(performAutoClick, 3000); 
+                }
+            }
+        }
+
+        // Function to buy a new cat
+        function buyNewCat() {
+            if (catnip >= buyCatCost) {
+                catnip -= buyCatCost;
+                totalCats++;
+
+                // --- NEW: Pick a random image and store it for this cat ---
+                const randomIndex = Math.floor(Math.random() * CAT_IMAGE_FILENAMES.length);
+                const chosenCatImage = CAT_IMAGE_FILENAMES[randomIndex];
+                boughtCatImages.push(chosenCatImage); // Add the chosen image to the array
+
+                buyCatCost = Math.floor(buyCatCost * 1.6); 
+                
+                recalculateCatnipPerSecond(); 
+                updateDisplay();
+                renderVisualItems(); 
+
+                if (totalCats === 1 && !passiveCatnipInterval) { 
+                    passiveCatnipInterval = setInterval(generatePassiveCatnip, 1000); 
+                }
+            }
+        }
+
+        function prestigeGame() {
+            if (catnip >= PRESTIGE_REQUIREMENT) {
+                if (!confirm(`Are you sure you want to Purr-stige? You will reset to 0 Catnip and all upgrades, but gain a permanent bonus! Requires ${PRESTIGE_REQUIREMENT} Catnip.`)) {
+                    return;
+                }
+
+                prestigeLevel++;
+
+                // Reset all game variables
+                catnip = 0;
+                totalClicks = 0;
+                clickPower = 1 + (prestigeLevel * 0.1); 
+                autoClickers = 0;
+                totalCats = 0; 
+                catnipPerSecond = 0; 
+
+                // --- NEW: Clear the boughtCatImages array on prestige ---
+                boughtCatImages = []; 
+
+                // Reset upgrade costs to initial values
+                upgradeClickCost = 10;
+                autoClickerCost = 50;
+                buyCatCost = 100; 
+
+                // Clear intervals
+                clearInterval(autoClickInterval);
+                autoClickInterval = null;
+                clearInterval(passiveCatnipInterval);
+                passiveCatnipInterval = null;
+
+                updateDisplay();
+                renderVisualItems(); 
+                alert(`Purr-stiged to Level ${prestigeLevel}! Your new cats and auto-clickers will be even better!`);
+            } else {
+                alert(`You need ${PRESTIGE_REQUIREMENT - catnip} more Catnip to Purr-stige!`);
+            }
+        }
+
+        // --- Event Listeners ---
+        catArea.addEventListener('click', clickCat);
+        upgradeClickBtn.addEventListener('click', upgradeClickPower);
+        buyAutoclickerBtn.addEventListener('click', buyAutoClicker);
+        buyCatBtn.addEventListener('click', buyNewCat);
+        prestigeBtn.addEventListener('click', prestigeGame);
+
+        // --- Initial Game Setup ---
+        function initGame() {
+            clickPower = 1 + (prestigeLevel * 0.1);
+            recalculateCatnipPerSecond();
+            renderVisualItems(); 
+            updateDisplay();
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
