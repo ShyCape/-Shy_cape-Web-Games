@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Car Dodging Game</title>
+    <style>
+        body {
+            background-color: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            color: white;
+            flex-direction: column;
+        }
+
+        canvas {
+            background-color: #666;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .game-over-text {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Car Dodging Game</h1>
+    <canvas id="gameCanvas" width="300" height="500"></canvas>
+    <div class="game-over-text">
+        <h2>Game Over</h2>
+        <p>Your Score: <span id="finalScore">0</span></p>
+        <button onclick="window.location.reload()">Restart</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let score = 0;
+        let gameOver = false;
+        
+        // Player car
+        const player = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 70,
+            width: 50,
+            height: 60,
+            speed: 5
+        };
+        
+        // Enemy cars
+        let enemies = [];
+        let enemySpawnInterval = 1000;
+        let lastEnemySpawn = 0;
+        let enemySpeed = 2;
+
+        function drawPlayer() {
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawEnemies() {
+            ctx.fillStyle = 'red';
+            enemies.forEach(enemy => {
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            });
+        }
+
+        function update() {
+            if (gameOver) return;
+
+            // Move enemies
+            enemies.forEach(enemy => {
+                enemy.y += enemySpeed;
+            });
+            
+            // Spawn new enemies
+            if (Date.now() - lastEnemySpawn > enemySpawnInterval) {
+                enemies.push({
+                    x: Math.random() * (canvas.width - 50),
+                    y: -60,
+                    width: 50,
+                    height: 60
+                });
+                lastEnemySpawn = Date.now();
+                score++;
+                if (score % 10 === 0) {
+                    enemySpeed += 0.5;
+                    if (enemySpawnInterval > 300) {
+                        enemySpawnInterval -= 50;
+                    }
+                }
+            }
+            
+            // Remove enemies that are off-screen
+            enemies = enemies.filter(enemy => enemy.y < canvas.height);
+            
+            // Collision detection
+            enemies.forEach(enemy => {
+                if (
+                    player.x < enemy.x + enemy.width &&
+                    player.x + player.width > enemy.x &&
+                    player.y < enemy.y + enemy.height &&
+                    player.y + player.height > enemy.y
+                ) {
+                    gameOver = true;
+                    document.querySelector('.game-over-text').style.display = 'block';
+                    document.getElementById('finalScore').innerText = score;
+                }
+            });
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw
+            drawPlayer();
+            drawEnemies();
+            
+            // Display score
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText('Score: ' + score, 10, 30);
+            
+            requestAnimationFrame(update);
+        }
+
+        // Handle keyboard input
+        document.addEventListener('keydown', (e) => {
+            if (gameOver) return;
+
+            switch (e.key) {
+                case 'ArrowLeft':
+                    if (player.x > 0) player.x -= player.speed * 5;
+                    break;
+                case 'ArrowRight':
+                    if (player.x < canvas.width - player.width) player.x += player.speed * 5;
+                    break;
+            }
+        });
+
+        // Start the game loop
+        update();
+    </script>
+</body>
+</html>
