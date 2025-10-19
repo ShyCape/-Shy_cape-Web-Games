@@ -6,13 +6,14 @@ const scoreDisplay = document.getElementById('score-display');
 const restartButton = document.getElementById('restart-button');
 
 // Lane variables
-const laneWidth = 125; // 500px / 4 lanes
-const playerWidth = 50;
+const laneWidth = 100; // 500px / 5 lanes
+const playerWidth = 90;
 const laneCenters = [
     (laneWidth * 0.5) - (playerWidth / 2),
     (laneWidth * 1.5) - (playerWidth / 2),
     (laneWidth * 2.5) - (playerWidth / 2),
-    (laneWidth * 3.5) - (playerWidth / 2)
+    (laneWidth * 3.5) - (playerWidth / 2),
+    (laneWidth * 4.5) - (playerWidth / 2)
 ];
 let currentLane;
 
@@ -54,8 +55,8 @@ function updatePlayerPosition() {
 
 // === Obstacle Logic ===
 function spawnObstacleRow() {
-    const numberOfObstacles = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3
-    let availableLanes = [0, 1, 2, 3];
+    const numberOfObstacles = Math.floor(Math.random() * 4) + 1; // 1, 2, 3 or 4
+    let availableLanes = [0, 1, 2, 3, 4];
 
     // Shuffle the available lanes array (Fisher-Yates shuffle)
     for (let i = availableLanes.length - 1; i > 0; i--) {
@@ -75,7 +76,7 @@ function createObstacleInLane(laneIndex) {
     obstacle.classList.add('obstacle');
     gameBoard.appendChild(obstacle);
     obstacle.style.left = laneCenters[laneIndex] + 'px';
-    obstacle.style.top = '0px';
+    obstacle.style.top = '-80px';
 }
 
 function moveObstacles() {
@@ -96,14 +97,24 @@ function checkCollision() {
     const obstacles = document.querySelectorAll('.obstacle');
     const playerRect = player.getBoundingClientRect();
 
+    // Create a smaller, 85x85 hitbox centered inside the 90x90 playerRect
+    const hitboxWidth = 85;
+    const hitboxHeight = 55;
+    const hitbox = {
+        left: playerRect.left + (playerRect.width - hitboxWidth) / 2,
+        right: playerRect.right - (playerRect.width - hitboxWidth) / 2,
+        top: playerRect.top + (playerRect.height - hitboxHeight) / 2,
+        bottom: playerRect.bottom - (playerRect.height - hitboxHeight) / 2,
+    };
+
     for (const obstacle of obstacles) {
         const obstacleRect = obstacle.getBoundingClientRect();
 
         if (
-            playerRect.left < obstacleRect.right &&
-            playerRect.right > obstacleRect.left &&
-            playerRect.top < obstacleRect.bottom &&
-            playerRect.bottom > obstacleRect.top
+            hitbox.left < obstacleRect.right &&
+            hitbox.right > obstacleRect.left &&
+            hitbox.top < obstacleRect.bottom &&
+            hitbox.bottom > obstacleRect.top
         ) {
             gameOver();
         }
